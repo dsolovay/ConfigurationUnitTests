@@ -5,11 +5,11 @@ using System.Web.UI.WebControls;
 using System.Xml;
 using FluentAssertions;
 using NSubstitute;
- 
+using NSubstitute.ExceptionExtensions;
 using Sitecore.Abstractions;
 using Sitecore.Collections;
 using Sitecore.Configuration;
- 
+using Sitecore.Exceptions;
 using Sitecore.Web.UI.WebControls;
 using Xunit;
 
@@ -569,6 +569,208 @@ namespace ConfigurationUnitTests
 
             t.ChildType.Name.Should().Be("NestedName");
         }
+
+        /// <summary>
+        /// Shows access to app.config configuration.
+        /// </summary>
+        [Fact]
+        public void CanGetNode()
+        {
+            _sut.GetConfigNode("test/testobject").Should().NotBeNull();
+        }
+
+        [Fact]
+        public void CreateObject_with_ref()
+        {
+            string configNode =
+                @"<a ref='test/testobject' />";
+            TestType t = (TestType)_sut.CreateObject(ToNode(configNode), true);
+
+            t.Should().NotBeNull();
+        }
+
+        [Fact]
+        public void CreateObject_with_path()
+        {
+            string configNode =
+                @"<a path='test/testobject' />";
+            TestType t = (TestType)_sut.CreateObject(ToNode(configNode), true);
+
+            t.Should().NotBeNull();
+        }
+
+        [Fact]
+        public void CreateObject_with_ref_not_singleton()
+        {
+            string configNode =
+                @"<a path='test/testobject' />";
+            TestType t1 = (TestType)_sut.CreateObject(ToNode(configNode), true);
+
+            
+            TestType t2 = (TestType)_sut.CreateObject(ToNode(configNode), true);
+
+            t1.Should().NotBeNull();
+            t2.Should().NotBeNull();
+            t1.Should().NotBeSameAs(t2);
+        }
+
+
+        [Fact]
+        public void CreateObject_with_ref_with_singleton()
+        {
+            string configNode =
+                @"<a path='test/testobjectsingleton' />";
+            TestType t1 = (TestType)_sut.CreateObject(ToNode(configNode), true);
+
+
+            TestType t2 = (TestType)_sut.CreateObject(ToNode(configNode), true);
+
+            t1.Should().NotBeNull();
+            t2.Should().NotBeNull();
+            t1.Should().BeSameAs(t2);
+        }
+     
+        [Fact]
+        public void CreateObject_with_ref_pulls_parameters_from_ref_location()
+        {
+            string configNode =
+                $@"<a path='test/testconstructed' param0='TestValueFromRefNode' />";
+
+            var t = (TestConstructed)_sut.CreateObject(ToNode(configNode), true);
+
+            t.ConstructedValue.Should().Be("TestValueFromAppConfig");
+        }
+
+        /// <summary>
+        /// Setting values with $(0) format.
+        /// </summary>
+        /// <remarks>
+        /// Implemented here:
+        /// <see cref="ConfigReader.ReplaceVariables(string, XmlNode, string[])"/>
+        /// <code>
+        /// if (parameters != null)
+        /// {
+        ///    for (int index = 0; index &lt; parameters.Length; ++index)
+        ///        value = value.Replace("$(" + (object) index + ")", parameters[index]);
+        /// }
+        /// </code>
+        /// </remarks>
+        [Fact]
+        public void CreateObject_with_ref_accepts_numbered_parms()
+        {
+            string configNode =
+                $@"<a path='test/testcontstructedwithnumber' param0='TestValueFromRefNode' />";
+
+            var t = (TestConstructed)_sut.CreateObject(ToNode(configNode), true);
+
+            t.ConstructedValue.Should().Be("TestValueFromRefNode");
+        }
+
+
+        [Fact]
+        public void CreateObject_with_ref_accepts_numbered_parms_multiple()
+        {
+            string configNode1 =
+                $@"<a path='test/testcontstructedwithnumber' param0='TestValueFromRefNode1' />";
+            string configNode2 =
+                $@"<a path='test/testcontstructedwithnumber' param0='TestValueFromRefNode2' />";
+
+            var t1 = (TestConstructed)_sut.CreateObject(ToNode(configNode1), true);
+            var t2 = (TestConstructed)_sut.CreateObject(ToNode(configNode2), true);
+
+            t1.ConstructedValue.Should().Be("TestValueFromRefNode1");
+            t2.ConstructedValue.Should().Be("TestValueFromRefNode2");
+        }
+
+
+        [Fact]
+        public void CreateObject_with_ref_set_property()
+        {
+            string configNode =
+                $@" <a path='test/testconstructed'>
+                        <PropertyValue>SetAtReferrer</PropertyValue>
+                    </a>";
+
+            var t = (TestConstructed)_sut.CreateObject(ToNode(configNode), true);
+
+            t.ConstructedValue.Should().Be("TestValueFromAppConfig");
+            t.PropertyValue.Should().Be("SetAtReferrer");
+        }
+
+
+        [Fact]
+        public void CreateObject_with_ref_and_deferred_property()
+        {
+            string configNode =
+                $@" <a path='test/testwithdefer' />";
+
+            var t = (TestType)_sut.CreateObject(ToNode(configNode), true);
+
+            t.Name.Should().Be("DeferredValue");
+        }
+
+
+        [Fact]
+        public void CreateObject_with_ref_and_non_deferred_property()
+        {
+            string configNode =
+                $@" <a path='test/testwithnondefer' />";
+
+            var t = (TestType)_sut.CreateObject(ToNode(configNode), true);
+
+            t.Name.Should().Be("NonDeferredValue");
+        }
+
+
+        [Fact]
+        public void Deferred_applied_second()
+        {
+            string configNode =
+                $@" <a path='test/testwithboth' />";
+
+            var t = (TestType)_sut.CreateObject(ToNode(configNode), true);
+
+            t.Name.Should().Be("DeferredValue");
+        }
+
+        /// <summary>
+        /// Outer most setting always wins. Not sure why this parameter is there.
+        /// </summary>
+        /// <param name="element"></param>
+        /// <param name="expected"></param>
+        [Theory]
+        [InlineData("loc1A", "1")]
+        [InlineData("loc2A", "1")]
+        [InlineData("loc3A", "1")]
+        [InlineData("loc4A", "1")]
+        [InlineData("loc5A", "1")]
+        [InlineData("loc6A", "1")]
+        [InlineData("loc7A", "1")]
+        
+        public void Defer_does_not_impact_resolution(string element, string expected)
+        {
+            var t = (TestType)_sut.CreateObject($"deferTests/{element}", true);
+
+            t.Name.Should().Be(expected);
+        }
+
+        /// <summary>
+        /// Tip: Use defer to set a parameter on a class that doesn't allow it. 
+        /// </summary>
+        /// <param name="element"></param>
+        /// <param name="expected"></param>
+        [Theory]
+        [InlineData("initializableNonDefer", null)]
+        [InlineData("initializableDefer", "1")] 
+
+        public void Defer_does_impact_initializable(string element, string expected)
+        {
+            var t = (TestInitializable)_sut.CreateObject($"deferTests/{element}", true);
+
+            t.Prop.Should().Be(expected);
+        }
+
+
 
 
         private static XmlNode ToNode(string elementText)

@@ -185,6 +185,8 @@
     <Compile Include="ConfigurationTests.cs" />
     <Compile Include="FactoryTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TestConstructed.cs" />
+    <Compile Include="TestInitializable.cs" />
     <Compile Include="TestType.cs" />
     <Compile Include="TestTypeInitializable.cs" />
   </ItemGroup>
