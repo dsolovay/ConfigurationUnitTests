@@ -11,7 +11,7 @@ using Sitecore.IO;
 
 namespace ConfigurationUnitTests
 {
-    public class LayerTests
+	public class LayerTests
     {
         private DefaultFactory _sut;
 
@@ -42,8 +42,8 @@ namespace ConfigurationUnitTests
         public void Listed_before_outer()
         {
             XmlNodeList list = _sut.GetConfigNodes("layerTests/testNodes");
-            int outerPos = GetNotePosition("layer1outer", list);
-            int innerPos = GetNotePosition("layer1listed1", list);
+            int outerPos = GetNodePosition("layer1outer", list);
+            int innerPos = GetNodePosition("layer1listed1", list);
             innerPos.Should().BeLessThan(outerPos);
         }
 
@@ -51,8 +51,8 @@ namespace ConfigurationUnitTests
         public void OuterListed_Before_NestedListed()
         {
             XmlNodeList list = _sut.GetConfigNodes("layerTests/testNodes");
-            int outerListed = GetNotePosition("layer1listed1", list);
-            int nestedListed = GetNotePosition("layer1listed11", list);
+            int outerListed = GetNodePosition("layer1listed1", list);
+            int nestedListed = GetNodePosition("layer1listed11", list);
             outerListed.Should().BeLessThan(nestedListed);
         }
 
@@ -60,8 +60,8 @@ namespace ConfigurationUnitTests
         public void Within_folder_alpha()
         {
             XmlNodeList list = _sut.GetConfigNodes("layerTests/testNodes");
-            int firstAlpha = GetNotePosition("layer1listed1", list);
-            int secondAlpha = GetNotePosition("layer1listed1a", list);
+            int firstAlpha = GetNodePosition("layer1listed1", list);
+            int secondAlpha = GetNodePosition("layer1listed1a", list);
             firstAlpha.Should().BeLessThan(secondAlpha);
         }
 
@@ -69,8 +69,8 @@ namespace ConfigurationUnitTests
         public void Layers_in_order()
         {
             XmlNodeList list = _sut.GetConfigNodes("layerTests/testNodes");
-            int layer1 = GetNotePosition("layer1outer", list);
-            int layer2 = GetNotePosition("layer2outer", list);
+            int layer1 = GetNodePosition("layer1outer", list);
+            int layer2 = GetNodePosition("layer2outer", list);
             layer1.Should().BeLessThan(layer2);
         }
 
@@ -79,7 +79,7 @@ namespace ConfigurationUnitTests
         {
             XmlNodeList list = _sut.GetConfigNodes("layerTests/testNodes");
 
-            Assert.Throws<ArgumentNotFoundException>(() => GetNotePosition("layer3outer", list));
+            Assert.Throws<ArgumentNotFoundException>(() => GetNodePosition("layer3outer", list));
 
         }
 
@@ -89,7 +89,7 @@ namespace ConfigurationUnitTests
         {
             XmlNodeList list = _sut.GetConfigNodes("layerTests/testNodes");
 
-            Assert.Throws<ArgumentNotFoundException>(() => GetNotePosition("layer1excluded", list));
+            Assert.Throws<ArgumentNotFoundException>(() => GetNodePosition("layer1excluded", list));
 
         }
 
@@ -98,13 +98,13 @@ namespace ConfigurationUnitTests
         {
             XmlNodeList list = _sut.GetConfigNodes("layerTests/testNodes");
 
-            Assert.Throws<ArgumentNotFoundException>(() => GetNotePosition("layer4outer", list));
+            Assert.Throws<ArgumentNotFoundException>(() => GetNodePosition("layer4outer", list));
 
         }
 
 
 
-        private int GetNotePosition(string name, XmlNodeList list)
+        private int GetNodePosition(string name, XmlNodeList list)
         {
             for (int i = 0; i < list.Count; i++)
             {
