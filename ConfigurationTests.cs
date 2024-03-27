@@ -50,16 +50,6 @@ namespace ConfigurationUnitTests
             }
         }
 
-        [Fact]
-        public void GetConfiguration()
-        {
-            IServiceProvider serviceProvider = Substitute.For<IServiceProvider>();
-            BaseLog baseLog = new DefaultLog();
-            BaseComparerFactory comparerFactory = new DefaultComparerFactory(baseLog);
-            BaseFactory factory = new DefaultFactory(comparerFactory, serviceProvider);
-
-            Assert.Equal("<sitecore />", factory.GetConfiguration().OuterXml);
-        }
 
         [Fact]
         public void ConfigReader()

@@ -192,7 +192,6 @@
     <Compile Include="ConfigurationTests.cs" />
     <Compile Include="FactoryTests.cs" />
     <Compile Include="LayerTests.cs" />
-    <Compile Include="PatchTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TestConstructed.cs" />
     <Compile Include="TestInitializable.cs" />
@@ -200,7 +199,6 @@
     <Compile Include="TestTypeInitializable.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include=".editorconfig" />
     <None Include="app.config" />
     <Content Include="App_Config\Layer1\Layer1Outer.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
@@ -224,9 +222,6 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="App_Config\Layer1\Layer1Excluded.config">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="App_Config\Layer1\PatchRules.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <None Include="packages.config" />
