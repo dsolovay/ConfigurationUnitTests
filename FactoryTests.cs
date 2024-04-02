@@ -633,16 +633,20 @@ namespace ConfigurationUnitTests
 
           s.Should().Be("Created from FactoryMethod2 with arg 'myArg'");
         }
-
+        
         [Fact]
-        public void CreateObject_with_factoryMethod()
+        public void CreateObject_with_a_static_factoryMethod_and_wrong_arg_number_throws()
         {
           string configNode =
-            @"<a type='ConfigurationUnitTests.TestType' factoryMethod='FactoryMethod1' />";
-          string s = (string)_sut.CreateObject(ToNode(configNode), true);
+            @"<a type='ConfigurationUnitTests.TestType' factoryMethod='FactoryMethod2' arg1='myArg' />";
 
-          s.Should().Be("Created from FactoryMethod1");
+
+          ((Action)(() => _sut.CreateObject(ToNode(configNode), true)))
+            .Should().Throw<System.Reflection.TargetParameterCountException>()
+            .WithMessage("Parameter count mismatch."); 
         }
+
+        
 
 
         [Fact]
