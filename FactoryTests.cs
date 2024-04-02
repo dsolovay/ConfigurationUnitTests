@@ -614,20 +614,50 @@ namespace ConfigurationUnitTests
             t1.Should().NotBeSameAs(t2);
         }
 
+        [Fact]
+        public void CreateObject_with_a_static_factoryMethod()
+        {
+          string configNode =
+            @"<a type='ConfigurationUnitTests.TestType' factoryMethod='FactoryMethod1' />";
+          string s = (string)_sut.CreateObject(ToNode(configNode), true);
+
+          s.Should().Be("Created from FactoryMethod1");
+        }
+
+        [Fact]
+        public void CreateObject_with_a_static_factoryMethod_with_argument()
+        {
+          string configNode =
+            @"<a type='ConfigurationUnitTests.TestType' factoryMethod='FactoryMethod2' arg0='myArg' />";
+          string s = (string)_sut.CreateObject(ToNode(configNode), true);
+
+          s.Should().Be("Created from FactoryMethod2 with arg 'myArg'");
+        }
+
+        [Fact]
+        public void CreateObject_with_factoryMethod()
+        {
+          string configNode =
+            @"<a type='ConfigurationUnitTests.TestType' factoryMethod='FactoryMethod1' />";
+          string s = (string)_sut.CreateObject(ToNode(configNode), true);
+
+          s.Should().Be("Created from FactoryMethod1");
+        }
+
 
         [Fact]
         public void CreateObject_with_ref_with_singleton()
         {
-            string configNode =
-                @"<a path='test/testobjectsingleton' />";
-            TestType t1 = (TestType)_sut.CreateObject(ToNode(configNode), true);
+          string configNode =
+            @"<a path='test/testobjectsingleton' />";
+          TestType t1 = (TestType)_sut.CreateObject(ToNode(configNode), true);
 
 
-            TestType t2 = (TestType)_sut.CreateObject(ToNode(configNode), true);
+          TestType t2 = (TestType)_sut.CreateObject(ToNode(configNode), true);
 
-            t1.Should().NotBeNull();
-            t2.Should().NotBeNull();
-            t1.Should().BeSameAs(t2);
+          t1.Should().NotBeNull();
+          t2.Should().NotBeNull();
+          t1.Should().BeSameAs(t2);
         }
      
         [Fact]

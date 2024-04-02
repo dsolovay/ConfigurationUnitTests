@@ -24,5 +24,15 @@ namespace ConfigurationUnitTests
         {
             Name = "set value";
         }
-    }
+
+        public static string FactoryMethod1()
+        {
+          return "Created from FactoryMethod1";
+        }
+
+        public static string FactoryMethod2(string value)
+        {
+          return $"Created from FactoryMethod2 with arg '{value}'";
+        }
+  }
 }
