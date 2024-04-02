@@ -646,9 +646,39 @@ namespace ConfigurationUnitTests
             .WithMessage("Parameter count mismatch."); 
         }
 
+        [Fact]
+        public void CreateObject_with_a_param1_in_same_object_does_not_get_replaced()
+        {
+          string configNode =
+            @"<a type='ConfigurationUnitTests.TestType' param1='Value from parameter'>
+                  <name>$(1)</name>
+              </a>";
+
+          TestType t = (TestType)_sut.CreateObject(ToNode(configNode), true);
+
+          t.Name.Should().Be("$(1)");
+        }
+
+        /// <summary>
+        /// Shows parameter passing from CreateObject. Sitecore uses this technique to
+        /// apply logic to parameters before they are passed to configuration, for
+        /// example in configuring the MediaLinkPrefix parameter when constructing
+        /// <see cref="Sitecore.Links.UrlBuilders.MediaUrlBuilder"></see>.
+        /// </summary>
+        [Fact]
+        public void CreateObject_with_a_param1_passed_in_call_does_get_replaced()
+        {
+          string configNode =
+            @"<a type='ConfigurationUnitTests.TestType'>
+                  <name>$(1)</name>
+              </a>";
+
+          TestType t = (TestType)_sut.CreateObject(ToNode(configNode),
+            new string[] { null, "Value from CreateObject call" }, true);
+
+          t.Name.Should().Be("Value from CreateObject call");
+        }
         
-
-
         [Fact]
         public void CreateObject_with_ref_with_singleton()
         {
