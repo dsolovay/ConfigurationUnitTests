@@ -11,15 +11,8 @@ using Sitecore.IO;
 
 namespace ConfigurationUnitTests
 {
-	public class LayerTests
+  public class LayerTests:ConfigurationTestBase
     {
-        private DefaultFactory _sut;
-
-        public LayerTests()
-        {
-            Context.IsUnitTesting = true;
-            _sut = new DefaultFactory(null, null);
-        }
 
         [Fact]
         public void Layers_are_loaded()
